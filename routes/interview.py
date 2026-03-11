@@ -9,6 +9,7 @@ from database.db import (
 
 from models.interview_models import AnswerRequest
 from utils.stage_manager import get_next_stage
+from services.evaluation_service import evaluate_interview
 
 router = APIRouter(prefix="/interview", tags=["Interview"])
 
@@ -24,34 +25,24 @@ def start_interview(participant_id: str):
     interview_session = {
         "session_id": interview_id,
         "participant_id": participant_id,
-        "current_stage": "JD",
+        "current_stage": "INTRO",
         "question_index": 0,
         "status": "active"
     }
 
     sessions_collection.insert_one(interview_session)
 
-    # find participant
     participant = participants_collection.find_one({"_id": participant_id})
 
     if not participant:
         return {"error": "Participant not found"}
 
-    job_session_id = participant["session_id"]
-
-    # first JD question
-    first_question = questions_collection.find_one({
-        "session_id": job_session_id,
-        "type": "JD"
-    })
-
-    if not first_question:
-        return {"error": "No JD questions found"}
+    intro_question = "Please introduce yourself and briefly describe your background, skills, and key projects."
 
     return {
         "session_id": interview_id,
-        "stage": "JD",
-        "question": first_question["text"]
+        "stage": "INTRO",
+        "question": intro_question
     }
 
 
@@ -70,7 +61,6 @@ def get_next_question(session_id: str):
     index = interview_session["question_index"]
     participant_id = interview_session["participant_id"]
 
-    # get participant
     participant = participants_collection.find_one({"_id": participant_id})
 
     if not participant:
@@ -78,9 +68,32 @@ def get_next_question(session_id: str):
 
     job_session_id = participant["session_id"]
 
-    # -------------------------
-    # FETCH QUESTIONS
-    # -------------------------
+    # INTRO stage handled separately
+    if stage == "INTRO":
+
+        next_stage = get_next_stage(stage)
+
+        sessions_collection.update_one(
+            {"session_id": session_id},
+            {
+                "$set": {
+                    "current_stage": next_stage,
+                    "question_index": 0
+                }
+            }
+        )
+
+        first_question = questions_collection.find_one({
+            "session_id": job_session_id,
+            "type": "JD"
+        })
+
+        return {
+            "stage": next_stage,
+            "question": first_question["text"] if first_question else None
+        }
+
+    # Fetch questions
     if stage in ["PROJECT", "INTERNSHIP"]:
 
         questions = list(
@@ -91,7 +104,7 @@ def get_next_question(session_id: str):
             })
         )
 
-    else:  # JD + BEHAVIORAL
+    else:
 
         questions = list(
             questions_collection.find({
@@ -103,9 +116,7 @@ def get_next_question(session_id: str):
     if not questions:
         return {"error": f"No questions found for stage {stage}"}
 
-    # -------------------------
-    # MOVE TO NEXT STAGE
-    # -------------------------
+    # Move to next stage
     if index >= len(questions):
 
         next_stage = get_next_stage(stage)
@@ -116,6 +127,24 @@ def get_next_question(session_id: str):
                 {"session_id": session_id},
                 {"$set": {"status": "completed"}}
             )
+
+            # -------------------------
+            # RUN EVALUATION SILENTLY
+            # -------------------------
+            participant = participants_collection.find_one({"_id": participant_id})
+
+            if participant:
+
+                answers = participant.get("answers", [])
+
+                if answers:
+
+                    evaluation = evaluate_interview(answers)
+
+                    participants_collection.update_one(
+                        {"_id": participant_id},
+                        {"$set": {"evaluation": evaluation}}
+                    )
 
             return {"message": "Interview completed"}
 
@@ -129,7 +158,6 @@ def get_next_question(session_id: str):
             }
         )
 
-        # fetch first question of next stage
         if next_stage in ["PROJECT", "INTERNSHIP"]:
 
             next_question = questions_collection.find_one({
@@ -150,9 +178,6 @@ def get_next_question(session_id: str):
             "question": next_question["text"] if next_question else None
         }
 
-    # -------------------------
-    # RETURN CURRENT QUESTION
-    # -------------------------
     question = questions[index]["text"]
 
     return {
@@ -180,13 +205,11 @@ def submit_answer(session_id: str, body: AnswerRequest):
         "answer": body.answer
     }
 
-    # store answer in participant
     participants_collection.update_one(
         {"_id": participant_id},
         {"$push": {"answers": answer_data}}
     )
 
-    # increment question index
     sessions_collection.update_one(
         {"session_id": session_id},
         {"$inc": {"question_index": 1}}

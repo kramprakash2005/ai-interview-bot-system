@@ -1,4 +1,5 @@
 STAGE_ORDER = [
+    "INTRO",
     "JD",
     "PROJECT",
     "INTERNSHIP",
@@ -6,6 +7,7 @@ STAGE_ORDER = [
 ]
 
 STAGE_LIMITS = {
+    "INTRO": 1,
     "JD": 5,
     "PROJECT": 4,
     "INTERNSHIP": 3,
