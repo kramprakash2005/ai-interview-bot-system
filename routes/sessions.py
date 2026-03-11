@@ -7,6 +7,8 @@ import uuid
 from services.topic_extractor import extract_topics
 from services.question_generator import generate_jd_questions
 
+from services.behavioral_service import generate_behavioral_questions
+
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
 
 
@@ -37,7 +39,11 @@ def create_session(data: SessionCreate):
         print("No topics extracted. Skipping question generation.")
         questions = []
     else:
-        questions = generate_jd_questions(topics)
+        jd_questions = generate_jd_questions(topics)
+
+        behavioral_questions = generate_behavioral_questions(topics)
+
+        questions = jd_questions + behavioral_questions
 
     print("QUESTIONS GENERATED:", len(questions))
 
@@ -45,9 +51,11 @@ def create_session(data: SessionCreate):
 
     for q in questions:
 
+        q_type = "BEHAVIORAL" if q.get("topic") == "behavioral" else "JD"
+
         questions_collection.insert_one({
             "session_id": session_id,
-            "type": "JD",
+            "type": q_type,
             "topic": q.get("topic"),
             "text": q.get("question")
         })
