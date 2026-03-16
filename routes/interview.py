@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from uuid import uuid4
+from datetime import datetime
 
 from database.db import (
     sessions_collection,
@@ -15,10 +16,48 @@ router = APIRouter(prefix="/interview", tags=["Interview"])
 
 
 # -------------------------
+# VALIDATE INVITE
+# -------------------------
+@router.post("/validate")
+def validate_invite(invite_token: str, participant_id: str):
+
+    p = participants_collection.find_one({
+        "_id": participant_id,
+        "invite_token": invite_token
+    })
+
+    if not p:
+        raise HTTPException(400, "Invalid link")
+
+    if p.get("invite_used"):
+        raise HTTPException(400, "Link already used")
+
+    participants_collection.update_one(
+        {"_id": participant_id},
+        {
+            "$set": {
+                "invite_used": True,
+                "invite_used_at": datetime.utcnow()
+            }
+        }
+    )
+
+    return {"ok": True}
+
+
+# -------------------------
 # START INTERVIEW
 # -------------------------
 @router.post("/start/{participant_id}")
 def start_interview(participant_id: str):
+
+    participant = participants_collection.find_one({"_id": participant_id})
+
+    if not participant:
+        return {"error": "Participant not found"}
+
+    if not participant.get("invite_used"):
+        return {"error": "Invite not validated"}
 
     interview_id = str(uuid4())
 
@@ -32,12 +71,10 @@ def start_interview(participant_id: str):
 
     sessions_collection.insert_one(interview_session)
 
-    participant = participants_collection.find_one({"_id": participant_id})
-
-    if not participant:
-        return {"error": "Participant not found"}
-
-    intro_question = "Please introduce yourself and briefly describe your background, skills, and key projects."
+    intro_question = (
+        "Please introduce yourself and briefly describe "
+        "your background, skills, and key projects."
+    )
 
     return {
         "session_id": interview_id,
@@ -45,14 +82,12 @@ def start_interview(participant_id: str):
         "question": intro_question
     }
 
-
-# -------------------------
-# GET NEXT QUESTION
-# -------------------------
 @router.get("/{session_id}/next-question")
 def get_next_question(session_id: str):
 
-    interview_session = sessions_collection.find_one({"session_id": session_id})
+    interview_session = sessions_collection.find_one(
+        {"session_id": session_id}
+    )
 
     if not interview_session:
         return {"error": "Interview session not found"}
@@ -61,14 +96,17 @@ def get_next_question(session_id: str):
     index = interview_session["question_index"]
     participant_id = interview_session["participant_id"]
 
-    participant = participants_collection.find_one({"_id": participant_id})
+    participant = participants_collection.find_one(
+        {"_id": participant_id}
+    )
 
     if not participant:
         return {"error": "Participant not found"}
 
     job_session_id = participant["session_id"]
 
-    # INTRO stage handled separately
+    # ---------------- INTRO -> move to first real stage ----------------
+
     if stage == "INTRO":
 
         next_stage = get_next_stage(stage)
@@ -83,17 +121,11 @@ def get_next_question(session_id: str):
             }
         )
 
-        first_question = questions_collection.find_one({
-            "session_id": job_session_id,
-            "type": "JD"
-        })
+        stage = next_stage
+        index = 0
 
-        return {
-            "stage": next_stage,
-            "question": first_question["text"] if first_question else None
-        }
+    # ---------------- LOAD QUESTIONS ----------------
 
-    # Fetch questions
     if stage in ["PROJECT", "INTERNSHIP"]:
 
         questions = list(
@@ -116,11 +148,13 @@ def get_next_question(session_id: str):
     if not questions:
         return {"error": f"No questions found for stage {stage}"}
 
-    # Move to next stage
+    # ---------------- STAGE FINISHED ----------------
+
     if index >= len(questions):
 
         next_stage = get_next_stage(stage)
 
+        # interview finished
         if not next_stage:
 
             sessions_collection.update_one(
@@ -128,26 +162,12 @@ def get_next_question(session_id: str):
                 {"$set": {"status": "completed"}}
             )
 
-            # -------------------------
-            # RUN EVALUATION SILENTLY
-            # -------------------------
-            participant = participants_collection.find_one({"_id": participant_id})
+            return {
+                "message": "Interview completed",
+                "participant_id": participant_id
+            }
 
-            if participant:
-
-                answers = participant.get("answers", [])
-
-                if answers:
-
-                    evaluation = evaluate_interview(answers)
-
-                    participants_collection.update_one(
-                        {"_id": participant_id},
-                        {"$set": {"evaluation": evaluation}}
-                    )
-
-            return {"message": "Interview completed"}
-
+        # move to next stage
         sessions_collection.update_one(
             {"session_id": session_id},
             {
@@ -158,25 +178,33 @@ def get_next_question(session_id: str):
             }
         )
 
-        if next_stage in ["PROJECT", "INTERNSHIP"]:
+        stage = next_stage
+        index = 0
 
-            next_question = questions_collection.find_one({
-                "session_id": job_session_id,
-                "participant_id": participant_id,
-                "type": next_stage
-            })
+        # reload questions for new stage
+        if stage in ["PROJECT", "INTERNSHIP"]:
+
+            questions = list(
+                questions_collection.find({
+                    "session_id": job_session_id,
+                    "participant_id": participant_id,
+                    "type": stage
+                })
+            )
 
         else:
 
-            next_question = questions_collection.find_one({
-                "session_id": job_session_id,
-                "type": next_stage
-            })
+            questions = list(
+                questions_collection.find({
+                    "session_id": job_session_id,
+                    "type": stage
+                })
+            )
 
-        return {
-            "stage": next_stage,
-            "question": next_question["text"] if next_question else None
-        }
+        if not questions:
+            return {"error": f"No questions found for stage {stage}"}
+
+    # ---------------- RETURN QUESTION ----------------
 
     question = questions[index]["text"]
 
@@ -185,14 +213,15 @@ def get_next_question(session_id: str):
         "question": question
     }
 
-
 # -------------------------
 # SUBMIT ANSWER
 # -------------------------
 @router.post("/{session_id}/answer")
 def submit_answer(session_id: str, body: AnswerRequest):
 
-    interview_session = sessions_collection.find_one({"session_id": session_id})
+    interview_session = sessions_collection.find_one(
+        {"session_id": session_id}
+    )
 
     if not interview_session:
         return {"error": "Interview session not found"}

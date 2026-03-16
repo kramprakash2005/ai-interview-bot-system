@@ -11,3 +11,5 @@ questions_collection = db["questions"]
 participants_collection = db["participants"]
 answers_collection = db["answers"]
 evaluations_collection = db["evaluations"]
+
+otp_collection = db["otp_codes"]
