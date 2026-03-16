@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+<title>Candidate Report - Mirai AI Interview</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(
+    -45deg,
+    #667eea,
+    #764ba2,
+    #f093fb,
+    #4facfe
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.glass {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+}
+
+</style>
+
+</head>
+
+
+<body class="animated-bg min-h-screen p-6">
+
+
+<div class="max-w-6xl mx-auto">
+
+
+<!-- HEADER -->
+
+<div class="flex justify-between mb-6">
+
+  <div>
+
+    <h1 class="text-3xl font-bold text-white">
+      Mirai AI Interview Platform
+    </h1>
+
+    <p class="text-white/80">
+      Candidate Report • Tachibana Hinata
+    </p>
+
+  </div>
+
+  <button
+    onclick="goBack()"
+    class="bg-white px-3 py-1 rounded"
+  >
+    Back
+  </button>
+
+</div>
+
+
+
+<!-- INFO -->
+
+<div class="glass p-6 mb-4">
+
+  <h2 class="text-xl font-bold mb-2">
+    Candidate Details
+  </h2>
+
+  <div id="info"></div>
+
+</div>
+
+
+
+<!-- SCORE -->
+
+<div class="glass p-6 mb-4">
+
+  <h2 class="text-xl font-bold mb-2">
+    Evaluation
+  </h2>
+
+  <div id="evaluation"></div>
+
+</div>
+
+
+
+<!-- REPORT -->
+
+<div class="glass p-6 mb-4">
+
+  <h2 class="text-xl font-bold mb-2">
+    AI Report
+  </h2>
+
+  <div id="report"></div>
+
+</div>
+
+
+
+<!-- ANSWERS -->
+
+<div class="glass p-6 mb-4">
+
+  <h2 class="text-xl font-bold mb-2">
+    Answers
+  </h2>
+
+  <div id="answers"></div>
+
+</div>
+
+
+
+</div>
+
+
+
+<script>
+
+const API = "http://localhost:8000"
+
+
+function getId() {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    )
+
+  return params.get("participant_id")
+
+}
+
+
+function goBack() {
+
+  history.back()
+
+}
+
+
+
+async function load() {
+
+  const id = getId()
+
+  const res = await fetch(
+    API + "/participants/" + id
+  )
+
+  const p = await res.json()
+
+
+  // ---------- INFO ----------
+
+  document.getElementById("info").innerHTML = `
+
+    Name: ${p.name || "-"} <br>
+    Email: ${p.email || "-"} <br>
+    Status: ${p.status || "-"}
+
+  `
+
+
+  // ---------- EVALUATION ----------
+
+  const ev = p.evaluation || {}
+
+  document.getElementById("evaluation").innerHTML = `
+
+    Overall Score: ${ev.overall_score || "-"} <br>
+    Technical: ${ev.technical_score || "-"} <br>
+    Practical: ${ev.practical_score || "-"} <br>
+    Behavioral: ${ev.behavioral_score || "-"} <br>
+    Confidence: ${ev.confidence_score || "-"} <br>
+    Communication: ${ev.communication_score || "-"}
+
+  `
+
+
+  // ---------- REPORT ----------
+
+  const rep = ev.report || {}
+
+  let strengths = ""
+  let weaknesses = ""
+
+  if (rep.strengths) {
+
+    rep.strengths.forEach(s => {
+      strengths += "<li>" + s + "</li>"
+    })
+
+  }
+
+  if (rep.weaknesses) {
+
+    rep.weaknesses.forEach(w => {
+      weaknesses += "<li>" + w + "</li>"
+    })
+
+  }
+
+
+  document.getElementById("report").innerHTML = `
+
+    <b>Recommendation:</b>
+    ${rep.recommendation || "-"} <br><br>
+
+    <b>Strengths</b>
+    <ul>${strengths}</ul>
+
+    <b>Weaknesses</b>
+    <ul>${weaknesses}</ul>
+
+    <br>
+
+    <b>Role Fit:</b>
+    ${rep.role_fit || "-"}
+
+    <br><br>
+
+    <b>Summary:</b>
+    ${rep.summary || "-"}
+
+  `
+
+
+  // ---------- ANSWERS ----------
+
+  let ansHtml = ""
+
+  if (p.answers) {
+
+    p.answers.forEach(a => {
+
+      ansHtml += `
+
+      <div class="mb-3">
+
+        <b>${a.question}</b><br>
+
+        ${a.answer}
+
+      </div>
+
+      `
+
+    })
+
+  }
+
+  document.getElementById("answers").innerHTML =
+    ansHtml
+
+}
+
+
+load()
+
+</script>
+
+
+</body>
+</html>

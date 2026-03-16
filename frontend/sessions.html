@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+<title>Sessions - Mirai AI Interview</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(
+    -45deg,
+    #667eea,
+    #764ba2,
+    #f093fb,
+    #4facfe
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.glass {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+</style>
+
+</head>
+
+
+<body class="animated-bg min-h-screen p-6">
+
+
+<div class="max-w-6xl mx-auto">
+
+
+<!-- HEADER -->
+
+<div class="flex justify-between mb-6">
+
+  <div>
+
+    <h1 class="text-3xl font-bold text-white">
+      Mirai AI Interview Platform
+    </h1>
+
+    <p class="text-white/80">
+      Session Manager • Tachibana Hinata
+    </p>
+
+  </div>
+
+
+  <button
+    onclick="goDashboard()"
+    class="bg-white px-3 py-1 rounded"
+  >
+    Dashboard
+  </button>
+
+</div>
+
+
+
+<!-- SESSION LIST -->
+
+<div
+  id="sessionList"
+  class="grid grid-cols-1 md:grid-cols-2 gap-4"
+>
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+const API = "http://localhost:8000"
+
+
+function goDashboard() {
+
+  window.location.href = "dashboard.html"
+
+}
+
+
+
+async function loadSessions() {
+
+  const res = await fetch(
+    API + "/sessions/"
+  )
+
+  const data = await res.json()
+
+  const div =
+    document.getElementById("sessionList")
+
+  div.innerHTML = ""
+
+
+  data.forEach(s => {
+
+    const link =
+      "form.html?session_id=" + s._id
+
+
+    div.innerHTML += `
+
+    <div class="glass p-6 shadow card">
+
+      <h2 class="text-xl font-bold">
+        ${s.title}
+      </h2>
+
+      <p class="text-sm text-gray-600">
+        Session ID: ${s._id}
+      </p>
+
+
+      <div class="mt-4 flex gap-2 flex-wrap">
+
+
+        <button
+          onclick="copyLink('${link}')"
+          class="bg-indigo-600 text-white px-3 py-1 rounded"
+        >
+          Copy Form Link
+        </button>
+
+
+        <button
+          onclick="openParticipants('${s._id}')"
+          class="bg-green-600 text-white px-3 py-1 rounded"
+        >
+          Participants
+        </button>
+
+
+        <button
+          onclick="openResults('${s._id}')"
+          class="bg-pink-600 text-white px-3 py-1 rounded"
+        >
+          Results
+        </button>
+
+
+      </div>
+
+    </div>
+
+    `
+
+  })
+
+}
+
+
+
+function copyLink(link) {
+
+  navigator.clipboard.writeText(link)
+
+  alert("Form link copied")
+
+}
+
+
+function openParticipants(id) {
+
+  window.location.href =
+    "participants_list.html?session_id=" + id
+
+}
+
+
+function openResults(id) {
+
+  window.location.href =
+    "results.html?session_id=" + id
+
+}
+
+
+loadSessions()
+
+</script>
+
+
+</body>
+</html>

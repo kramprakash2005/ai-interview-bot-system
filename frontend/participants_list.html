@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+<title>Participants - Mirai AI Interview</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(
+    -45deg,
+    #667eea,
+    #764ba2,
+    #f093fb,
+    #4facfe
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.glass {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+}
+
+</style>
+
+</head>
+
+
+<body class="animated-bg min-h-screen p-6">
+
+
+<div class="max-w-6xl mx-auto">
+
+
+<!-- HEADER -->
+
+<div class="flex justify-between mb-6">
+
+  <div>
+
+    <h1 class="text-3xl font-bold text-white">
+      Mirai AI Interview Platform
+    </h1>
+
+    <p class="text-white/80">
+      Participants • Tachibana Hinata
+    </p>
+
+  </div>
+
+  <button
+    onclick="goBack()"
+    class="bg-white px-3 py-1 rounded"
+  >
+    Back
+  </button>
+
+</div>
+
+
+
+<div class="glass p-6 shadow">
+
+  <h2 class="text-xl font-bold mb-4">
+    Candidates
+  </h2>
+
+
+  <table class="w-full">
+
+    <thead>
+
+      <tr class="text-left border-b">
+
+        <th>Name</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Action</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody id="list">
+
+    </tbody>
+
+  </table>
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+const API = "http://localhost:8000"
+
+
+
+function getSessionId() {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    )
+
+  return params.get("session_id")
+
+}
+
+
+
+function goBack() {
+
+  window.location.href = "sessions.html"
+
+}
+
+
+
+async function load() {
+
+  const session_id = getSessionId()
+
+  const res = await fetch(
+    API + "/form/by-session/" + session_id
+  )
+
+  const data = await res.json()
+
+  const list =
+    document.getElementById("list")
+
+  list.innerHTML = ""
+
+
+  data.forEach(c => {
+
+    list.innerHTML += `
+
+    <tr class="border-b">
+
+      <td>${c.name}</td>
+
+      <td>${c.email}</td>
+
+      <td>${c.status}</td>
+
+      <td>
+
+        <button
+          onclick="approve('${c._id}')"
+          class="bg-green-600 text-white px-2 py-1 rounded"
+        >
+          Approve
+        </button>
+
+
+        <button
+          onclick="reject('${c._id}')"
+          class="bg-red-600 text-white px-2 py-1 rounded"
+        >
+          Reject
+        </button>
+
+      </td>
+
+    </tr>
+
+    `
+
+  })
+
+}
+
+
+
+async function approve(id) {
+
+  await fetch(
+    API + "/form/approve/" + id,
+    { method: "POST" }
+  )
+
+  load()
+
+}
+
+
+
+async function reject(id) {
+
+  await fetch(
+    API + "/form/reject/" + id,
+    { method: "POST" }
+  )
+
+  load()
+
+}
+
+
+
+load()
+
+</script>
+
+
+</body>
+</html>

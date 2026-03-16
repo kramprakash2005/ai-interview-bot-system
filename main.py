@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes import sessions, participants, interview, resume
 from routes.evaluation import router as evaluation_router
 from routes.auth import router as auth_router
+from routes.form_candidates import router as form_router
 
 app = FastAPI(
     title="AI Interview System",
@@ -27,6 +28,7 @@ app.include_router(interview.router)
 app.include_router(resume.router)
 app.include_router(evaluation_router)
 app.include_router(auth_router)
+app.include_router(form_router)
 
 @app.get("/")
 def root():

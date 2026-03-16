@@ -16,6 +16,10 @@ FRONTEND_URL = os.getenv("FRONTEND_URL")
 router = APIRouter(prefix="/participants", tags=["Participants"])
 
 
+# =========================
+# CREATE PARTICIPANT (OLD FLOW)
+# =========================
+
 @router.post("/")
 def create_participant(data: ParticipantCreate):
 
@@ -29,7 +33,6 @@ def create_participant(data: ParticipantCreate):
     title = session["title"] if session else "Interview"
     desc = session.get("description", "") if session else ""
 
-    # ✅ correct link
     link = (
         f"{FRONTEND_URL}/welcome.html"
         f"?participant_id={participant_id}"
@@ -64,7 +67,6 @@ def create_participant(data: ParticipantCreate):
 
     participants_collection.insert_one(participant)
 
-    # send mail
     send_invite_email(
         data.email,
         link,
@@ -75,3 +77,41 @@ def create_participant(data: ParticipantCreate):
     return {
         "participant_id": participant_id
     }
+
+
+# =========================
+# NEW → GET BY SESSION (for results page)
+# =========================
+
+@router.get("/by-session/{session_id}")
+def get_participants_by_session(session_id: str):
+
+    data = list(
+        participants_collection.find(
+            {"session_id": session_id}
+        )
+    )
+
+    for d in data:
+        d["_id"] = str(d["_id"])
+
+    return data
+
+
+# =========================
+# NEW → GET SINGLE PARTICIPANT (for report page)
+# =========================
+
+@router.get("/{participant_id}")
+def get_participant(participant_id: str):
+
+    p = participants_collection.find_one(
+        {"_id": participant_id}
+    )
+
+    if not p:
+        return {"error": "Participant not found"}
+
+    p["_id"] = str(p["_id"])
+
+    return p

@@ -69,3 +69,15 @@ def create_session(data: SessionCreate):
         "topics": topics,
         "questions_generated": inserted_count
     }
+
+@router.get("/")
+def get_sessions():
+
+    sessions = list(
+        sessions_collection.find()
+    )
+
+    for s in sessions:
+        s["_id"] = str(s["_id"])
+
+    return sessions

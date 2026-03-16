@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+<title>Create Session - Mirai AI Interview</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(
+    -45deg,
+    #667eea,
+    #764ba2,
+    #f093fb,
+    #4facfe
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.glass {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+}
+
+</style>
+
+</head>
+
+
+<body class="animated-bg min-h-screen flex items-center justify-center p-6">
+
+
+<div class="glass p-8 w-full max-w-xl shadow-2xl">
+
+
+<h1 class="text-2xl font-bold mb-2">
+Mirai AI Interview Platform
+</h1>
+
+<p class="text-gray-600 mb-6">
+Create Interview Session • Tachibana Hinata
+</p>
+
+
+
+<label>Session Title</label>
+
+<input
+id="title"
+class="border p-2 w-full mb-4 rounded"
+/>
+
+
+
+<label>Job Description</label>
+
+<textarea
+id="jd"
+rows="6"
+class="border p-2 w-full mb-4 rounded"
+></textarea>
+
+
+
+<button
+onclick="createSession()"
+class="bg-indigo-600 text-white px-4 py-2 rounded w-full"
+>
+Create Session
+</button>
+
+
+<p id="msg" class="mt-4 text-green-600"></p>
+
+
+<button
+onclick="goBack()"
+class="mt-4 text-blue-600"
+>
+Back
+</button>
+
+
+</div>
+
+
+
+<script>
+
+const API = "http://localhost:8000"
+
+
+
+function token() {
+  return localStorage.getItem("ai_token")
+}
+
+
+
+function goBack() {
+  window.location.href = "dashboard.html"
+}
+
+
+
+async function createSession() {
+
+  const title =
+    document.getElementById("title").value
+
+  const jd =
+    document.getElementById("jd").value
+
+
+  const res = await fetch(
+    API + "/sessions/",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token()
+      },
+
+      body: JSON.stringify({
+        title: title,
+        job_description: jd
+      })
+    }
+  )
+
+
+  if (res.ok) {
+
+    document.getElementById("msg").innerText =
+      "Session created"
+
+  }
+
+  else {
+
+    document.getElementById("msg").innerText =
+      "Error creating session"
+
+  }
+
+}
+
+</script>
+
+
+</body>
+</html>
