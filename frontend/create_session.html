@@ -1,166 +1,128 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" id="theme-root">
 <head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Initialize | Mirai AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = { 
+      darkMode: 'class', 
+      theme: { extend: { colors: { 'm-black': '#0f172a', 'm-indigo': '#6366f1' }, fontFamily: { sans: ['Public Sans', 'sans-serif'] } } } 
+    }
+  </script>
 
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body { transition: background-color 0.3s ease; }
+    .simple-input { 
+      border: 1px solid #e2e8f0; 
+      padding: 1rem; 
+      width: 100%; 
+      background: #ffffff; 
+      border-radius: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .dark .simple-input { background: #1e293b; border-color: #334155; color: #fff; }
+    .simple-input:focus { outline: none; border-color: #6366f1; }
 
-<title>Create Session - Mirai AI Interview</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-bg {
-  background: linear-gradient(
-    -45deg,
-    #667eea,
-    #764ba2,
-    #f093fb,
-    #4facfe
-  );
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-.glass {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-}
-
-</style>
-
+    .btn-primary { 
+      background: #6366f1; 
+      color: white; 
+      border-radius: 0.75rem; 
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { background: #4f46e5; transform: translateY(-1px); }
+    
+    .sidebar-label { writing-mode: vertical-rl; transform: rotate(180deg); opacity: 0.4; }
+  </style>
 </head>
 
+<body class="font-sans antialiased min-h-screen flex bg-slate-50 dark:bg-m-black text-slate-900 dark:text-white">
+  
+  <aside class="w-20 border-r border-gray-200 dark:border-slate-800 flex flex-col items-center py-10 bg-white dark:bg-m-black sticky top-0 h-screen hidden md:flex">
+    <div class="sidebar-label font-bold tracking-tight text-2xl uppercase mb-auto">Mirai</div>
+    <button onclick="toggleTheme()" class="p-3 mb-4 text-slate-400 hover:text-m-indigo transition-colors">
+      <i id="theme-icon" class="fas fa-moon text-xl"></i>
+    </button>
+    <button onclick="window.location.href='dashboard.html'" class="p-3 text-m-indigo hover:scale-110 transition-transform">
+      <i class="fas fa-arrow-left text-2xl"></i>
+    </button>
+  </aside>
 
-<body class="animated-bg min-h-screen flex items-center justify-center p-6">
+  <main class="flex-1 p-8 md:p-16">
+    <header class="mb-16 border-b border-gray-200 dark:border-slate-800 pb-8">
+      <h1 class="text-6xl font-extrabold tracking-tight uppercase">Initialize</h1>
+      <p class="text-sm font-bold uppercase tracking-[0.4em] text-m-indigo mt-4">Automated Initialization</p>
+    </header>
 
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <section class="max-w-xl">
+        <h2 class="text-2xl font-bold mb-6 tracking-tight">Configuration Logic</h2>
+        <div class="space-y-6 text-lg text-slate-600 dark:text-slate-400">
+          <p>By providing the job requirements, you enable Mirai to architect a custom interview script.</p>
+          <p>The system analyzes technical stack requirements to generate role-specific evaluation logic.</p>
+          <p>Once deployed, <strong>Tachibana Hinata</strong> will use this data to conduct a dynamic technical assessment.</p>
+        </div>
+      </section>
 
-<div class="glass p-8 w-full max-w-xl shadow-2xl">
+      <div class="space-y-8 bg-white dark:bg-slate-900/50 p-8 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest block mb-2 text-m-indigo">Session Title</label>
+          <input id="title" class="simple-input" placeholder="e.g. Senior Java Developer" />
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest block mb-2 text-m-indigo">Job Description</label>
+          <textarea id="jd" rows="8" class="simple-input" placeholder="Paste the full requirements here..."></textarea>
+        </div>
+        <button onclick="createSession()" class="btn-primary w-full py-5 text-xl uppercase tracking-tight">
+          Deploy Session
+        </button>
+        <p id="msg" class="text-center font-bold text-sm tracking-wide text-m-indigo"></p>
+      </div>
+    </div>
+  </main>
 
-
-<h1 class="text-2xl font-bold mb-2">
-Mirai AI Interview Platform
-</h1>
-
-<p class="text-gray-600 mb-6">
-Create Interview Session • Tachibana Hinata
-</p>
-
-
-
-<label>Session Title</label>
-
-<input
-id="title"
-class="border p-2 w-full mb-4 rounded"
-/>
-
-
-
-<label>Job Description</label>
-
-<textarea
-id="jd"
-rows="6"
-class="border p-2 w-full mb-4 rounded"
-></textarea>
-
-
-
-<button
-onclick="createSession()"
-class="bg-indigo-600 text-white px-4 py-2 rounded w-full"
->
-Create Session
-</button>
-
-
-<p id="msg" class="mt-4 text-green-600"></p>
-
-
-<button
-onclick="goBack()"
-class="mt-4 text-blue-600"
->
-Back
-</button>
-
-
-</div>
-
-
-
-<script>
-
-const API = "http://localhost:8000"
-
-
-
-function token() {
-  return localStorage.getItem("ai_token")
-}
-
-
-
-function goBack() {
-  window.location.href = "dashboard.html"
-}
-
-
-
-async function createSession() {
-
-  const title =
-    document.getElementById("title").value
-
-  const jd =
-    document.getElementById("jd").value
-
-
-  const res = await fetch(
-    API + "/sessions/",
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token()
-      },
-
-      body: JSON.stringify({
-        title: title,
-        job_description: jd
-      })
+  <script>
+    function toggleTheme() {
+      const root = document.getElementById('theme-root');
+      const icon = document.getElementById('theme-icon');
+      const isDark = root.classList.toggle('dark');
+      if (icon) icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+      localStorage.setItem('mirai-theme', isDark ? 'dark' : 'light');
     }
-  )
 
+    async function createSession() {
+      const msg = document.getElementById("msg");
+      msg.innerText = "Processing Logic...";
+      try {
+        const res = await fetch("http://localhost:8000/sessions/", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json", 
+            "Authorization": "Bearer " + localStorage.getItem("ai_token") 
+          },
+          body: JSON.stringify({ 
+            title: document.getElementById("title").value, 
+            job_description: document.getElementById("jd").value 
+          })
+        });
+        msg.innerText = res.ok ? "Deployment Successful" : "Deployment Error";
+      } catch (e) {
+        msg.innerText = "Connection Failed";
+      }
+    }
 
-  if (res.ok) {
-
-    document.getElementById("msg").innerText =
-      "Session created"
-
-  }
-
-  else {
-
-    document.getElementById("msg").innerText =
-      "Error creating session"
-
-  }
-
-}
-
-</script>
-
-
+    (function() {
+      const savedTheme = localStorage.getItem('mirai-theme');
+      if (savedTheme === 'dark') {
+        document.getElementById('theme-root').classList.add('dark');
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.className = 'fas fa-sun text-xl';
+      }
+    })();
+  </script>
 </body>
 </html>

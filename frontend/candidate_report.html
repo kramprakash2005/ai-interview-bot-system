@@ -1,283 +1,189 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" id="theme-root">
 <head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Candidate Audit | Mirai AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = { 
+      darkMode: 'class', 
+      theme: { 
+        extend: { 
+          colors: { 'm-black': '#0f172a', 'm-indigo': '#6366f1' }, 
+          fontFamily: { sans: ['Public Sans', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] } 
+        } 
+      } 
+    }
+  </script>
+  <style>
+    body { transition: background-color 0.3s ease; }
+    
+    .report-section { border-bottom: 1px solid #e2e8f0; }
+    .dark .report-section { border-color: #1e293b; }
+    
+    .section-header { 
+      background: #f8fafc; 
+      border-bottom: 1px solid #e2e8f0; 
+      padding: 0.75rem 1.5rem;
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #64748b;
+    }
+    .dark .section-header { background: #0f172a; border-color: #1e293b; color: #94a3b8; }
 
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+    .metric-card {
+      padding: 2.5rem 1rem;
+      text-align: center;
+      border-right: 1px solid #e2e8f0;
+    }
+    .dark .metric-card { border-color: #1e293b; }
 
-<title>Candidate Report - Mirai AI Interview</title>
+    .transcript-row {
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.2s;
+    }
+    .dark .transcript-row { border-color: #1e293b; }
+    .transcript-row:hover { background: #f8fafc; }
+    .dark .transcript-row:hover { background: #1e293b/50; }
 
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-bg {
-  background: linear-gradient(
-    -45deg,
-    #667eea,
-    #764ba2,
-    #f093fb,
-    #4facfe
-  );
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-.glass {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-}
-
-</style>
-
+    .sidebar-label { writing-mode: vertical-rl; transform: rotate(180deg); opacity: 0.4; }
+  </style>
 </head>
-
-
-<body class="animated-bg min-h-screen p-6">
-
-
-<div class="max-w-6xl mx-auto">
-
-
-<!-- HEADER -->
-
-<div class="flex justify-between mb-6">
-
-  <div>
-
-    <h1 class="text-3xl font-bold text-white">
-      Mirai AI Interview Platform
-    </h1>
-
-    <p class="text-white/80">
-      Candidate Report • Tachibana Hinata
-    </p>
-
-  </div>
-
-  <button
-    onclick="goBack()"
-    class="bg-white px-3 py-1 rounded"
-  >
-    Back
-  </button>
-
-</div>
-
-
-
-<!-- INFO -->
-
-<div class="glass p-6 mb-4">
-
-  <h2 class="text-xl font-bold mb-2">
-    Candidate Details
-  </h2>
-
-  <div id="info"></div>
-
-</div>
-
-
-
-<!-- SCORE -->
-
-<div class="glass p-6 mb-4">
-
-  <h2 class="text-xl font-bold mb-2">
-    Evaluation
-  </h2>
-
-  <div id="evaluation"></div>
-
-</div>
-
-
-
-<!-- REPORT -->
-
-<div class="glass p-6 mb-4">
-
-  <h2 class="text-xl font-bold mb-2">
-    AI Report
-  </h2>
-
-  <div id="report"></div>
-
-</div>
-
-
-
-<!-- ANSWERS -->
-
-<div class="glass p-6 mb-4">
-
-  <h2 class="text-xl font-bold mb-2">
-    Answers
-  </h2>
-
-  <div id="answers"></div>
-
-</div>
-
-
-
-</div>
-
-
-
-<script>
-
-const API = "http://localhost:8000"
-
-
-function getId() {
-
-  const params =
-    new URLSearchParams(
-      window.location.search
-    )
-
-  return params.get("participant_id")
-
-}
-
-
-function goBack() {
-
-  history.back()
-
-}
-
-
-
-async function load() {
-
-  const id = getId()
-
-  const res = await fetch(
-    API + "/participants/" + id
-  )
-
-  const p = await res.json()
-
-
-  // ---------- INFO ----------
-
-  document.getElementById("info").innerHTML = `
-
-    Name: ${p.name || "-"} <br>
-    Email: ${p.email || "-"} <br>
-    Status: ${p.status || "-"}
-
-  `
-
-
-  // ---------- EVALUATION ----------
-
-  const ev = p.evaluation || {}
-
-  document.getElementById("evaluation").innerHTML = `
-
-    Overall Score: ${ev.overall_score || "-"} <br>
-    Technical: ${ev.technical_score || "-"} <br>
-    Practical: ${ev.practical_score || "-"} <br>
-    Behavioral: ${ev.behavioral_score || "-"} <br>
-    Confidence: ${ev.confidence_score || "-"} <br>
-    Communication: ${ev.communication_score || "-"}
-
-  `
-
-
-  // ---------- REPORT ----------
-
-  const rep = ev.report || {}
-
-  let strengths = ""
-  let weaknesses = ""
-
-  if (rep.strengths) {
-
-    rep.strengths.forEach(s => {
-      strengths += "<li>" + s + "</li>"
-    })
-
-  }
-
-  if (rep.weaknesses) {
-
-    rep.weaknesses.forEach(w => {
-      weaknesses += "<li>" + w + "</li>"
-    })
-
-  }
-
-
-  document.getElementById("report").innerHTML = `
-
-    <b>Recommendation:</b>
-    ${rep.recommendation || "-"} <br><br>
-
-    <b>Strengths</b>
-    <ul>${strengths}</ul>
-
-    <b>Weaknesses</b>
-    <ul>${weaknesses}</ul>
-
-    <br>
-
-    <b>Role Fit:</b>
-    ${rep.role_fit || "-"}
-
-    <br><br>
-
-    <b>Summary:</b>
-    ${rep.summary || "-"}
-
-  `
-
-
-  // ---------- ANSWERS ----------
-
-  let ansHtml = ""
-
-  if (p.answers) {
-
-    p.answers.forEach(a => {
-
-      ansHtml += `
-
-      <div class="mb-3">
-
-        <b>${a.question}</b><br>
-
-        ${a.answer}
-
+<body class="font-sans antialiased min-h-screen flex bg-white dark:bg-m-black text-slate-900 dark:text-white">
+  
+  <aside class="w-20 border-r border-gray-200 dark:border-slate-800 flex flex-col items-center py-10 bg-white dark:bg-m-black sticky top-0 h-screen hidden md:flex">
+    <div class="sidebar-label font-bold tracking-tight text-2xl uppercase mb-auto">Mirai</div>
+    <button onclick="toggleTheme()" class="p-3 mb-4 text-slate-400 hover:text-m-indigo transition-colors">
+        <i id="theme-icon" class="fas fa-moon text-xl"></i>
+    </button>
+    <button onclick="history.back()" class="p-3 text-m-indigo hover:scale-110 transition-transform">
+      <i class="fas fa-arrow-left text-2xl"></i>
+    </button>
+  </aside>
+
+  <main class="flex-1 h-screen overflow-y-auto">
+    
+    <section class="report-section">
+      <div class="section-header">Candidate Identification</div>
+      <div id="info-pane" class="p-12">
+          </div>
+    </section>
+
+    <section class="report-section">
+      <div class="section-header">Performance Analytics</div>
+      <div id="metrics-pane" class="grid grid-cols-2 md:grid-cols-5">
+          </div>
+    </section>
+
+    <section class="report-section">
+      <div class="section-header">Executive Summary</div>
+      <div class="p-12">
+        <div id="recommendation-hero" class="mb-12"></div>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div id="strengths-pane" class="bg-green-50 dark:bg-green-900/10 p-8 rounded-2xl border border-green-100 dark:border-green-900/20"></div>
+          <div id="weaknesses-pane" class="bg-red-50 dark:bg-red-900/10 p-8 rounded-2xl border border-red-100 dark:border-red-900/20"></div>
+        </div>
       </div>
+    </section>
 
-      `
+    <section class="report-section border-b-0">
+      <div class="section-header">Interview Transcript Audit</div>
+      <div id="transcript-pane">
+          </div>
+    </section>
 
-    })
+  </main>
 
-  }
+  <script>
+    const API = "http://localhost:8000";
 
-  document.getElementById("answers").innerHTML =
-    ansHtml
+    function toggleTheme() {
+      const root = document.getElementById('theme-root');
+      const icon = document.getElementById('theme-icon');
+      const isDark = root.classList.toggle('dark');
+      if (icon) icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+      localStorage.setItem('mirai-theme', isDark ? 'dark' : 'light');
+    }
 
-}
+    async function load() {
+      try {
+        const id = new URLSearchParams(window.location.search).get("participant_id");
+        if(!id) return;
 
+        const res = await fetch(API + "/participants/" + id);
+        const p = await res.json();
+        const ev = p.evaluation || {};
+        const rep = ev.report || {};
 
-load()
+        // 1. Identity
+        document.getElementById("info-pane").innerHTML = `
+          <h2 class="text-6xl font-extrabold tracking-tight mb-2">${p.name || "N/A"}</h2>
+          <p class="font-medium text-m-indigo tracking-wide">${p.email || "N/A"}</p>
+        `;
 
-</script>
+        // 2. Metrics
+        const ms = [
+          { l: "Overall", v: ev.overall_score },
+          { l: "Technical", v: ev.technical_score },
+          { l: "Practical", v: ev.practical_score },
+          { l: "Behavioral", v: ev.behavioral_score },
+          { l: "Communication", v: ev.communication_score }
+        ];
+        document.getElementById("metrics-pane").innerHTML = ms.map(m => `
+          <div class="metric-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">${m.l}</p>
+            <p class="text-4xl font-extrabold font-mono">${m.v || "0.0"}</p>
+          </div>
+        `).join('');
 
+        // 3. Summary
+        document.getElementById("recommendation-hero").innerHTML = `
+          <p class="text-xs font-bold uppercase tracking-widest text-m-indigo mb-4">Hiring Recommendation</p>
+          <p class="text-7xl font-extrabold tracking-tight mb-6">${rep.recommendation || "-"}</p>
+          <p class="text-xl font-medium leading-relaxed max-w-4xl text-slate-600 dark:text-slate-400 italic">"${rep.summary || "-"}"</p>
+        `;
 
+        document.getElementById("strengths-pane").innerHTML = `
+          <h4 class="text-sm font-bold uppercase text-green-700 dark:text-green-400 mb-4 tracking-wider">Key Strengths</h4>
+          <ul class="space-y-3 font-medium text-slate-700 dark:text-slate-300 text-sm">${(rep.strengths || []).map(s => `<li>• ${s}</li>`).join('')}</ul>
+        `;
+
+        document.getElementById("weaknesses-pane").innerHTML = `
+          <h4 class="text-sm font-bold uppercase text-red-700 dark:text-red-400 mb-4 tracking-wider">Growth Areas</h4>
+          <ul class="space-y-3 font-medium text-slate-700 dark:text-slate-300 text-sm">${(rep.weaknesses || []).map(w => `<li>• ${w}</li>`).join('')}</ul>
+        `;
+
+        // 4. Transcript
+        document.getElementById("transcript-pane").innerHTML = (p.answers || []).map((a, i) => `
+          <div class="transcript-row p-10">
+            <div class="flex items-start gap-8">
+                <span class="text-m-indigo font-black text-lg opacity-20">0${i + 1}</span>
+                <div class="flex-1">
+                    <p class="text-xs font-bold uppercase text-slate-400 mb-2 tracking-widest">Question</p>
+                    <p class="text-xl font-bold mb-8 tracking-tight">${a.question}</p>
+                    <p class="text-xs font-bold uppercase text-slate-400 mb-2 tracking-widest">Candidate Response</p>
+                    <p class="text-lg font-medium leading-relaxed text-slate-600 dark:text-slate-400">${a.answer}</p>
+                </div>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (e) { console.error(e); }
+    }
+
+    (function() {
+      const savedTheme = localStorage.getItem('mirai-theme');
+      if (savedTheme === 'dark') {
+        document.getElementById('theme-root').classList.add('dark');
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.className = 'fas fa-sun text-xl';
+      }
+      load();
+    })();
+  </script>
 </body>
 </html>

@@ -1,201 +1,157 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" id="theme-root">
 <head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dashboard - Mirai AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: { 'm-black': '#0f172a', 'm-indigo': '#6366f1' },
+          fontFamily: { sans: ['Public Sans', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
 
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    /* Smooth transitions for theme switching */
+    body { transition: background-color 0.3s ease, color 0.3s ease; }
+    
+    /* Modern Simple Card Style */
+    .nav-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      cursor: pointer;
+    }
 
-<title>Mirai AI Interview Platform</title>
+    .dark .nav-card {
+      background: #1e293b;
+      border-color: #334155;
+    }
 
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-bg {
-  background: linear-gradient(
-    -45deg,
-    #667eea,
-    #764ba2,
-    #f093fb,
-    #4facfe
-  );
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-.glass {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-}
-
-.card {
-  transition: 0.2s;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-}
-
-</style>
-
+    .nav-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+      border-color: #6366f1;
+    }
+    
+    .sidebar-label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      opacity: 0.4;
+    }
+  </style>
 </head>
 
+<body class="font-sans antialiased min-h-screen flex bg-slate-50 dark:bg-m-black text-slate-900 dark:text-white">
 
-<body class="animated-bg min-h-screen p-6">
+  <aside class="w-20 border-r border-gray-200 dark:border-slate-800 flex flex-col items-center py-10 bg-white dark:bg-m-black sticky top-0 h-screen hidden md:flex">
+    <div class="sidebar-label font-bold tracking-tight text-2xl uppercase mb-auto">Mirai</div>
+    
+    <button onclick="toggleTheme()" class="p-3 mb-4 text-slate-400 hover:text-m-indigo transition-colors" title="Toggle Theme">
+      <i id="theme-icon" class="fas fa-moon text-xl"></i>
+    </button>
+    
+    <button onclick="logout()" class="p-3 text-red-500 opacity-70 hover:opacity-100 transition-colors">
+      <i class="fas fa-power-off text-2xl"></i>
+    </button>
+  </aside>
 
-<div class="max-w-6xl mx-auto">
+  <main class="flex-1 p-8 md:p-16">
+    <header class="mb-12 border-b border-gray-200 dark:border-slate-800 pb-8">
+      <h1 class="text-5xl font-extrabold tracking-tight">
+        Mirai <span class="text-m-indigo">AI</span>
+      </h1>
+      <p class="text-sm font-semibold uppercase tracking-[0.5em] text-slate-400 mt-4">
+        Autonomous Interview Platform
+      </p>
+    </header>
 
-
-<!-- HEADER -->
-
-<div class="flex justify-between items-center mb-6">
-
-  <div>
-
-    <h1 class="text-4xl font-extrabold text-white">
-      Mirai
-    </h1>
-
-    <p class="text-white/80 text-lg">
-      AI Interview Platform
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <section class="max-w-2xl">
+  <h2 class="text-3xl font-bold mb-8 tracking-tight">Workflow Intelligence</h2>
+  
+  <div class="space-y-6 text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+    <p>
+      Mirai is an end-to-end recruitment engine designed to eliminate manual technical screening through high-fidelity AI automation.
     </p>
 
+    <div class="pt-2">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-m-indigo mb-2">Automated Initialization</h3>
+      <p>
+        Interviews are created by feeding job descriptions directly into the engine. Mirai parses core competencies to generate a custom evaluation logic tailored to that specific role.
+      </p>
+    </div>
+
+    <div class="pt-2">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-m-indigo mb-2">Dynamic Execution</h3>
+      <p>
+        Once deployed, your virtual interviewer, <strong class="text-m-indigo underline decoration-2 underline-offset-4">Tachibana Hinata</strong>, engages candidates in a conversational dialogue that adapts in real-time based on the depth of their technical responses.
+      </p>
+    </div>
   </div>
+</section>
 
-  <button
-    onclick="logout()"
-    class="bg-red-500 text-white px-4 py-2 rounded-lg"
-  >
-    Logout
-  </button>
+      <div class="flex flex-col gap-10">
+        <div onclick="window.location.href='create_session.html'" class="nav-card p-10 group">
+          <div class="w-12 h-12 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-m-indigo rounded-xl mb-6">
+            <i class="fas fa-plus text-xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Create Session</h3>
+          <p class="text-slate-500 dark:text-slate-400 font-medium">
+            Deploy a new interview session. Mirai will generate evaluation logic automatically.
+          </p>
+        </div>
 
-</div>
+        <div onclick="window.location.href='sessions.html'" class="nav-card p-10 group">
+          <div class="w-12 h-12 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-m-indigo rounded-xl mb-6">
+            <i class="fas fa-list text-xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">View Sessions</h3>
+          <p class="text-slate-500 dark:text-slate-400 font-medium">
+            Manage existing interview sessions, review participants, and access AI reports.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
 
+  <script>
+    function toggleTheme() {
+      const root = document.getElementById('theme-root');
+      const icon = document.getElementById('theme-icon');
+      const isDark = root.classList.toggle('dark');
+      
+      // Update Icon
+      icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+      
+      // Persist Choice
+      localStorage.setItem('mirai-theme', isDark ? 'dark' : 'light');
+    }
 
+    // Initialize Theme on Load
+    (function() {
+      const savedTheme = localStorage.getItem('mirai-theme');
+      if (savedTheme === 'dark') {
+        document.getElementById('theme-root').classList.add('dark');
+        document.getElementById('theme-icon').className = 'fas fa-sun text-xl';
+      }
+    })();
 
-<!-- WELCOME -->
-
-<div class="glass p-8 mb-6 shadow-2xl">
-
-  <h2 class="text-2xl font-bold mb-4 text-gray-800">
-    Welcome to Mirai AI Interview Platform
-  </h2>
-
-  <p class="text-gray-700 leading-7">
-
-    Mirai is an AI-powered interview system designed to automate
-    technical screening and generate intelligent evaluation reports.
-
-    Your AI interviewer, <b>Tachibana Hinata</b>, conducts dynamic
-    interviews based on job description, projects, and experience.
-
-  </p>
-
-  <p class="text-gray-700 mt-4 leading-7">
-
-    The platform analyzes skills, generates questions,
-    evaluates answers, and produces recruiter-level feedback
-    using advanced AI models.
-
-  </p>
-
-</div>
-
-
-
-<!-- ACTION CARDS -->
-
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-
-
-<!-- CREATE SESSION -->
-
-<div
-  class="glass p-6 shadow-xl card cursor-pointer"
-  onclick="goCreate()"
->
-
-  <h3 class="text-xl font-bold mb-2">
-    Create Session
-  </h3>
-
-  <p class="text-gray-600">
-
-    Create a new interview session using job description.
-    Mirai will generate questions automatically.
-
-  </p>
-
-</div>
-
-
-
-<!-- VIEW SESSION -->
-
-<div
-  class="glass p-6 shadow-xl card cursor-pointer"
-  onclick="goSessions()"
->
-
-  <h3 class="text-xl font-bold mb-2">
-    View Sessions
-  </h3>
-
-  <p class="text-gray-600">
-
-    View existing interview sessions,
-    participants, and reports.
-
-  </p>
-
-</div>
-
-
-
-
-
-</div>
-
-
-
-</div>
-
-
-
-<script>
-
-function logout() {
-
-  localStorage.removeItem("ai_token")
-
-  window.location.href = "auth_hub.html"
-
-}
-
-
-function goCreate() {
-
-  window.location.href = "create_session.html"
-
-}
-
-
-function goSessions() {
-
-  window.location.href = "sessions.html"
-
-}
-
-</script>
-
-
+    function logout() { 
+      localStorage.removeItem("ai_token"); 
+      window.location.href = "auth_hub.html"; 
+    }
+  </script>
 </body>
 </html>

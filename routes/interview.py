@@ -67,27 +67,47 @@ def get_next_question(participant_id: str):
     stage = state["current_stage"]
     index = state["question_index"]
 
-    questions = list(
+    # PROJECT / INTERNSHIP must filter by participant_id
 
-        questions_collection.find(
-            {
-                "session_id": session_id,
-                "type": stage
-            }
+    if stage in ["PROJECT", "INTERNSHIP"]:
+
+        questions = list(
+            questions_collection.find(
+                {
+                    "session_id": session_id,
+                    "participant_id": participant_id,
+                    "type": stage
+                }
+            )
         )
 
-    )
+    else:
+
+        questions = list(
+            questions_collection.find(
+                {
+                    "session_id": session_id,
+                    "type": stage
+                }
+            )
+        )
+
+
+    # =============================
+    # STAGE COMPLETE
+    # =============================
 
     if index >= len(questions):
 
-        # move to next stage
-
         if stage == "JD":
             stage = "PROJECT"
+
         elif stage == "PROJECT":
             stage = "INTERNSHIP"
+
         elif stage == "INTERNSHIP":
             stage = "BEHAVIORAL"
+
         else:
 
             interview_sessions_collection.update_one(
@@ -119,7 +139,7 @@ def get_next_question(participant_id: str):
 
 
 # =============================
-# SAVE ANSWER
+# SAVE ANSWER  ✅ FIXED
 # =============================
 
 @router.post("/answer")
@@ -129,6 +149,15 @@ def save_answer(
     answer: str,
 ):
 
+    state = interview_sessions_collection.find_one(
+        {"participant_id": participant_id}
+    )
+
+    if not state:
+        raise HTTPException(404, "Interview not started")
+
+    stage = state["current_stage"]
+
     participants_collection.update_one(
         {"_id": participant_id},
         {
@@ -136,6 +165,7 @@ def save_answer(
                 "answers": {
                     "question": question,
                     "answer": answer,
+                    "stage": stage   # ✅ REQUIRED FOR EVALUATION
                 }
             }
         },

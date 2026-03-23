@@ -1,318 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hinata AI | Professional Interview Suite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary: #6366f1; 
-            --bg-dark: #020617; 
-            --card-bg: rgba(30, 41, 59, 0.4);
-            --border: rgba(255, 255, 255, 0.1);
-            --accent-green: #10b981;
-        }
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mirai | Autonomous Interview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@200;400;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { 'm-black': '#050505', 'm-indigo': '#6366f1' }, fontFamily: { sans: ['Public Sans', 'sans-serif'] } } }
+    }
+  </script>
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-dark);
-            color: #f8fafc;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* --- LAYOUTS --- */
-        .split-layout { display: flex; width: 100%; height: 100vh; }
-        
-        .onboarding-left {
-            width: 35%;
-            background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .onboarding-right {
-            flex: 1;
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background: radial-gradient(circle at top right, #1e1b4b, transparent);
-        }
-
-        /* --- IMMERSIVE INTERVIEW STAGE --- */
-        .immersive-stage {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            z-index: 100;
-        }
-
-        .view { display: none; width: 100%; max-width: 600px; }
-        .active { display: block; animation: fadeIn 0.6s ease; }
-
-        /* --- COMPONENTS --- */
-        .question-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 50px;
-            text-align: center;
-            width: 100%;
-            max-width: 850px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            padding: 18px 40px;
-            border-radius: 16px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1.1rem;
-            transition: all 0.2s ease;
-        }
-        .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
-
-        textarea {
-            width: 100%;
-            height: 150px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            color: #e2e8f0;
-            padding: 20px;
-            font-size: 1.15rem;
-            margin: 30px 0;
-            text-align: center;
-            font-family: inherit;
-            resize: none;
-            line-height: 1.6;
-        }
-
-        .loader-bar { width: 100%; height: 4px; background: #1e293b; border-radius: 10px; overflow: hidden; margin-top: 20px; }
-        .loader-progress { width: 40%; height: 100%; background: var(--primary); animation: loading 2s infinite ease-in-out; }
-        @keyframes loading { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    </style>
+  <style>
+    body { background-color: #050505; color: white; overflow: hidden; height: 100vh; width: 100vw; margin: 0; }
+    .view { display: none; height: 100vh; width: 100vw; flex-direction: column; justify-content: center; align-items: center; padding: 5rem; position: absolute; top: 0; left: 0; }
+    .view.active { display: flex; animation: scaleIn 0.8s ease-out; }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
+    .bg-glow { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 150vw; height: 150vh; background: radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 0%, transparent 70%); z-index: -1; }
+    .huge-input { background: transparent; border: none; border-left: 4px solid #6366f1; padding-left: 2rem; font-size: 2.5rem; line-height: 1.2; width: 100%; outline: none; color: #cbd5e1; transition: all 0.5s; }
+    .huge-input:focus { color: white; border-left-width: 12px; }
+    .mic-active { color: #ef4444; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+  </style>
 </head>
-<body>
 
-    <div id="layout-onboarding" class="split-layout">
-        <div class="onboarding-left">
-            <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; margin-bottom: 20px; box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);">TH</div>
-            <h2 style="margin: 0;">Tachibana Hinata</h2>
-            <p style="color: var(--primary); font-weight: 600; letter-spacing: 1px; font-size: 0.8rem; margin-top: 10px;">AI RECRUITMENT LEAD</p>
-        </div>
-        <div class="onboarding-right">
-            <div id="view-landing" class="view active">
-                <h1>Welcome</h1>
-                <p>I am Hinata. I'll be guiding you through your technical assessment. This session is designed to be context-aware and resume-focused.</p>
-                <button class="btn-primary" id="btnStart">Get Started</button>
-            </div>
-            <div id="view-resume" class="view">
-                <h2>Experience Verification</h2>
-                <p>Upload your resume to initialize the deterministic component classification.</p>
-                <input type="file" id="file" style="margin-bottom: 30px; display: block; color: #94a3b8;">
-                <button class="btn-primary" id="btnUpload">Begin Session</button>
-            </div>
-            <div id="view-loading" class="view">
-                <h2 id="loadingText">Analyzing Artifacts...</h2>
-                <div class="loader-bar"><div class="loader-progress"></div></div>
-            </div>
-        </div>
+<body class="font-sans antialiased" onclick="initAudioContext()">
+  <div class="bg-glow"></div>
+
+  <div id="view-welcome" class="view active">
+    <div class="text-left w-full max-w-7xl">
+      <h1 class="text-[12vw] font-black tracking-tighter leading-none mb-8">MIRAI</h1>
+      <p class="text-4xl text-slate-500 font-light max-w-4xl leading-tight mb-20">
+        I am <span class="text-white font-normal">Tachibana Hinata</span>. Preparing your environment.
+      </p>
+      <button onclick="show('view-upload')" class="text-2xl font-bold border-b-4 border-m-indigo pb-2 uppercase tracking-widest">
+        Begin Session
+      </button>
     </div>
+  </div>
 
-    <div id="layout-interview" class="immersive-stage">
-        <div id="mic-status" style="margin-bottom: 25px; font-size: 0.8rem; color: #10b981; font-weight: 600; visibility: hidden; letter-spacing: 2px;">
-            🎤 MICROPHONE ACTIVE
-        </div>
-
-        <div class="question-card">
-            <div style="font-weight: 600; color: var(--primary); margin-bottom: 20px; font-size: 0.75rem; letter-spacing: 2px;">ASSESSMENT IN PROGRESS</div>
-            
-            <h2 id="question" style="line-height: 1.6; margin: 0; min-height: 90px; font-weight: 400; font-size: 1.6rem;"></h2>
-            
-            <textarea id="answer" placeholder="Your response will be transcribed here..."></textarea>
-            
-            <button class="btn-primary" id="btnNext">Submit Response</button>
-        </div>
+  <div id="view-upload" class="view">
+    <div id="upload-stage" class="w-full max-w-7xl text-center">
+      <h2 class="text-6xl font-black mb-12 uppercase">Upload Resume</h2>
+      <input type="file" id="file-input" class="hidden" onchange="processFile()">
+      <label for="file-input" class="text-[5vw] text-slate-700 hover:text-m-indigo cursor-pointer transition-all font-black">
+        SELECT PDF +
+      </label>
     </div>
-
-    <div id="view-complete" class="immersive-stage" style="display: none;">
-        <h1 style="color: var(--accent-green);">Assessment Complete</h1>
-        <p>Your session artifacts have been successfully processed.</p>
+    <div id="loading-stage" class="hidden w-full max-w-7xl text-center">
+      <h3 class="text-6xl font-bold text-m-indigo mb-4 animate-pulse">Analyzing Data...</h3>
+      <p class="text-xl text-slate-500 font-mono italic">Synchronizing with Mirai Core</p>
     </div>
+  </div>
 
-    <script>
-        const API = "http://127.0.0.1:8000";
-        const params = new URLSearchParams(location.search);
-        const participant_id = params.get("participant_id");
-        const invite_token = params.get("invite_token");
+  <div id="view-interview" class="view fixed inset-0 z-50 bg-m-black !p-24">
+    <div class="w-full h-full flex flex-col justify-between">
+      <div class="flex justify-between items-start">
+        <div class="text-xl font-black tracking-widest border-l-4 border-m-indigo pl-4 uppercase">Live Session</div>
+        <div class="flex items-center gap-6">
+            <button onclick="toggleSTT()" id="mic-btn" class="text-2xl text-slate-500 hover:text-white transition-colors" title="Speech to Text (Spacebar)">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <div id="hinata-status" class="text-m-indigo font-bold text-xs tracking-widest uppercase">Hinata Standing By</div>
+        </div>
+      </div>
+      <div class="max-w-7xl w-full">
+        <h2 id="display-question" class="text-6xl font-bold leading-tight mb-20 italic">Loading Question...</h2>
+        <textarea id="answer-input" class="huge-input" placeholder="Type or speak your response..."></textarea>
+      </div>
+      <div class="flex justify-end">
+        <button id="btn-submit" onclick="submitAndNext()" class="bg-white text-m-black px-20 py-8 font-black text-2xl rounded-full">
+          SUBMIT ANSWER
+        </button>
+      </div>
+    </div>
+  </div>
 
-        let interview_session_id = null;
-        let currentQuestion = "";
-        let selectedVoice = null;
-        let recognition;
+  <div id="view-complete" class="view">
+    <h1 class="text-[12vw] font-black tracking-tighter text-m-indigo">COMPLETE</h1>
+  </div>
 
-        /* --- UI NAVIGATION --- */
-        function showView(viewId, layoutType = 'onboarding') {
-            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-            
-            if (layoutType === 'interview') {
-                document.getElementById("layout-onboarding").style.display = "none";
-                document.getElementById("layout-interview").style.display = "flex";
-            } else if (layoutType === 'complete') {
-                document.getElementById("layout-interview").style.display = "none";
-                document.getElementById("view-complete").style.display = "flex";
-            }
-            
-            const target = document.getElementById(viewId);
-            if(target) target.classList.add("active");
+  <script>
+    const API = "http://127.0.0.1:8000";
+    const params = new URLSearchParams(location.search);
+    const p_id = params.get("participant_id");
+    const s_id = params.get("session_id");
+
+    let currentQuestion = "";
+    let voice = null;
+    let recognition = null;
+    let isListening = false;
+    let hasIntroduced = false;
+
+    /* --- SPEECH TO TEXT (STT) --- */
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
         }
+        document.getElementById('answer-input').value = transcript;
+      };
 
-        /* --- SPEECH LOGIC --- */
-        function loadVoices() {
-            const voices = speechSynthesis.getVoices();
-            selectedVoice = voices.find(v => v.name.toLowerCase().includes("female")) || voices[0];
+      recognition.onend = () => {
+        if (isListening) recognition.start(); // Keep listening if active
+      };
+    }
+
+    function toggleSTT() {
+      if (!recognition) return alert("STT not supported in this browser.");
+      isListening = !isListening;
+      const btn = document.getElementById('mic-btn');
+      if (isListening) {
+        recognition.start();
+        btn.classList.add('mic-active');
+      } else {
+        recognition.stop();
+        btn.classList.remove('mic-active');
+      }
+    }
+
+    /* --- TEXT TO SPEECH (TTS) --- */
+    function loadVoices() {
+      voice = speechSynthesis.getVoices().find(v => v.name.includes("Female") || v.name.includes("Zira")) || null;
+      // Auto-play intro immediately after voices are ready
+      if (!hasIntroduced && voice) {
+          playIntro();
+      }
+    }
+    speechSynthesis.onvoiceschanged = loadVoices;
+
+    function playIntro() {
+      hasIntroduced = true;
+      speak("Hello. I am Tachibana Hinata. Welcome to Mirai. Please click the button to begin our session.");
+    }
+
+    // Force play on first user interaction if blocked
+    function initAudioContext() {
+        if (!hasIntroduced) playIntro();
+    }
+
+    function speak(text) {
+      speechSynthesis.cancel();
+      const msg = new SpeechSynthesisUtterance(text);
+      if (voice) msg.voice = voice;
+      msg.pitch = 1.1;
+      msg.onstart = () => document.getElementById('hinata-status').innerText = "Hinata Speaking";
+      msg.onend = () => document.getElementById('hinata-status').innerText = "Hinata Standing By";
+      speechSynthesis.speak(msg);
+    }
+
+    function show(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    async function processFile() {
+      const f = document.getElementById('file-input').files[0];
+      if (!f) return;
+      document.getElementById('upload-stage').classList.add('hidden');
+      document.getElementById('loading-stage').classList.remove('hidden');
+
+      const fd = new FormData();
+      fd.append("file", f);
+
+      try {
+        await fetch(`${API}/resume/upload/${p_id}`, { method: "POST", body: fd });
+        await fetch(`${API}/interview/start?participant_id=${p_id}&session_id=${s_id}`, { method: "POST" });
+        setTimeout(() => { show('view-interview'); fetchNext(); }, 2000);
+      } catch (e) { alert("Connection Error."); }
+    }
+
+    async function fetchNext() {
+      const res = await fetch(`${API}/interview/next/${p_id}`);
+      const data = await res.json();
+      if (data.status === "completed" || !data.question) {
+        speak("Session complete. Evaluation generating.");
+        show('view-complete');
+        fetch(`${API}/evaluation/${p_id}`);
+        return;
+      }
+      currentQuestion = data.question;
+      document.getElementById('display-question').innerText = currentQuestion;
+      document.getElementById('answer-input').value = "";
+      speak(currentQuestion);
+    }
+
+    async function submitAndNext() {
+      if (isListening) toggleSTT(); // Stop mic on submit
+      const ans = document.getElementById('answer-input').value;
+      if (!ans.trim()) return;
+      document.getElementById('btn-submit').innerText = "SAVING...";
+      await fetch(`${API}/interview/answer?participant_id=${p_id}&question=${encodeURIComponent(currentQuestion)}&answer=${encodeURIComponent(ans)}`, { method: "POST" });
+      document.getElementById('btn-submit').innerText = "SUBMIT ANSWER";
+      fetchNext();
+    }
+
+    // Keyboard support for STT
+    window.onkeydown = (e) => {
+        if (e.code === "Space" && document.activeElement.tagName !== "TEXTAREA") {
+            e.preventDefault();
+            toggleSTT();
         }
-        speechSynthesis.onvoiceschanged = loadVoices;
+    };
 
-        function speak(text, callback) {
-            const u = new SpeechSynthesisUtterance(text);
-            if (selectedVoice) u.voice = selectedVoice;
-            u.rate = 0.95;
-            u.onend = () => { if (callback) callback(); };
-            speechSynthesis.cancel();
-            speechSynthesis.speak(u);
-        }
-
-        function initSpeech() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-
-            recognition.onstart = () => {
-                document.getElementById("mic-status").style.visibility = "visible";
-            };
-            recognition.onend = () => {
-                document.getElementById("mic-status").style.visibility = "hidden";
-            };
-            recognition.onresult = e => {
-                let t = "";
-                for (let i = 0; i < e.results.length; i++) { t += e.results[i][0].transcript; }
-                document.getElementById("answer").value = t;
-            };
-        }
-        initSpeech();
-
-        /* --- TYPING LOGIC (FIXED SPACING) --- */
-        function typeText(el, text) {
-            el.innerHTML = "";
-            let i = 0;
-            const timer = setInterval(() => {
-                if (i <= text.length) {
-                    el.textContent = text.substring(0, i);
-                    i++;
-                } else {
-                    clearInterval(timer);
-                }
-            }, 25);
-        }
-
-        /* --- BUTTON HANDLERS --- */
-        btnStart.onclick = () => {
-            showView("view-resume");
-            speak("Welcome. Please upload your resume to begin the session.");
-        };
-
-        btnUpload.onclick = async () => {
-            showView("view-loading");
-            const steps = ["Analyzing Resume...", "Generating Interview Graph...", "Finalizing Isolation Model..."];
-            let s = 0;
-            const timer = setInterval(() => {
-                if(s < steps.length) document.getElementById("loadingText").innerText = steps[s++];
-            }, 2500);
-
-            await uploadResume();
-            await startInterview();
-            
-            clearInterval(timer);
-            showView("view-interview", "interview");
-        };
-
-        async function uploadResume() {
-            const f = document.getElementById("file").files[0];
-            const form = new FormData();
-            form.append("file", f);
-            await fetch(`${API}/resume/upload/${participant_id}`, { method: "POST", body: form });
-        }
-
-        async function startInterview() {
-            const r = await fetch(`${API}/interview/start/${participant_id}`, { method: "POST" });
-            const d = await r.json();
-            interview_session_id = d.session_id;
-            currentQuestion = d.question;
-            
-            typeText(document.getElementById("question"), d.question);
-            speak(d.question, () => recognition.start());
-        }
-
-        btnNext.onclick = async () => {
-            recognition.stop();
-            const ans = document.getElementById("answer").value;
-            
-            await fetch(`${API}/interview/${interview_session_id}/answer`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: currentQuestion, answer: ans })
-            });
-
-            nextQuestion();
-        };
-
-        async function nextQuestion() {
-            const r = await fetch(`${API}/interview/${interview_session_id}/next-question`);
-            const d = await r.json();
-            
-            if (d.message) {
-                showView("view-complete", "complete");
-                speak("The interview is concluded. Your performance data is being analyzed.");
-                await fetch(`${API}/evaluation/${participant_id}`);
-                return;
-            }
-
-            document.getElementById("answer").value = "";
-            currentQuestion = d.question;
-            typeText(document.getElementById("question"), d.question);
-            speak(d.question, () => recognition.start());
-        }
-
-        /* --- INITIALIZATION --- */
-        (async () => {
-            await fetch(`${API}/interview/validate?invite_token=${invite_token}&participant_id=${participant_id}`, { method: "POST" });
-            loadVoices();
-        })();
-    </script>
+    loadVoices();
+  </script>
 </body>
 </html>

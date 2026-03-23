@@ -1,209 +1,137 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" id="theme-root">
 <head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Results | Mirai AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = { 
+        darkMode: 'class', 
+        theme: { extend: { colors: { 'm-black': '#0f172a', 'm-indigo': '#6366f1' }, fontFamily: { sans: ['Public Sans', 'sans-serif'] } } } 
+    }
+  </script>
+  <style>
+    body { transition: background-color 0.3s ease; }
+    
+    .result-card { 
+      background: #ffffff; 
+      border: 1px solid #e2e8f0; 
+      border-radius: 1rem; 
+      transition: all 0.2s ease; 
+      margin-bottom: 1.5rem;
+    }
+    .dark .result-card { background: #1e293b; border-color: #334155; }
+    .result-card:hover { border-color: #6366f1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+    .score-value {
+      font-size: 4rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
 
-<title>Results - Mirai AI Interview</title>
+    .status-pill {
+      background: #f1f5f9;
+      color: #64748b;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .dark .status-pill { background: #334155; color: #cbd5e1; }
 
-<script src="https://cdn.tailwindcss.com"></script>
+    .btn-report {
+      background: #6366f1;
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .btn-report:hover { background: #4f46e5; transform: translateY(-1px); }
 
-<style>
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-bg {
-  background: linear-gradient(
-    -45deg,
-    #667eea,
-    #764ba2,
-    #f093fb,
-    #4facfe
-  );
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-.glass {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-}
-
-</style>
-
+    .sidebar-label { writing-mode: vertical-rl; transform: rotate(180deg); opacity: 0.4; }
+  </style>
 </head>
-
-
-<body class="animated-bg min-h-screen p-6">
-
-
-<div class="max-w-6xl mx-auto">
-
-
-<!-- HEADER -->
-
-<div class="flex justify-between mb-6">
-
-  <div>
-
-    <h1 class="text-3xl font-bold text-white">
-      Mirai AI Interview Platform
-    </h1>
-
-    <p class="text-white/80">
-      Results • Tachibana Hinata
-    </p>
-
-  </div>
-
-  <button
-    onclick="goBack()"
-    class="bg-white px-3 py-1 rounded"
-  >
-    Back
-  </button>
-
-</div>
-
-
-
-<div class="glass p-6 shadow">
-
-  <h2 class="text-xl font-bold mb-4">
-    Candidates Result
-  </h2>
-
-
-  <table class="w-full">
-
-    <thead>
-
-      <tr class="border-b text-left">
-
-        <th>Name</th>
-        <th>Status</th>
-        <th>Score</th>
-        <th>Report</th>
-
-      </tr>
-
-    </thead>
-
-    <tbody id="list">
-
-    </tbody>
-
-  </table>
-
-</div>
-
-
-</div>
-
-
-
-<script>
-
-const API = "http://localhost:8000"
-
-
-
-function getSessionId() {
-
-  const params =
-    new URLSearchParams(
-      window.location.search
-    )
-
-  return params.get("session_id")
-
-}
-
-
-
-function goBack() {
-
-  window.location.href = "sessions.html"
-
-}
-
-
-
-async function load() {
-
-  const session_id = getSessionId()
-
-  const res = await fetch(
-    API + "/participants/by-session/" + session_id
-  )
-
-  const data = await res.json()
-
-  const list =
-    document.getElementById("list")
-
-  list.innerHTML = ""
-
-
-  data.forEach(p => {
-
-    const score =
-      p.evaluation?.overall_score || "-"
-
-    const status =
-      p.status || "pending"
-
-
-    list.innerHTML += `
-
-    <tr class="border-b">
-
-      <td>${p.name}</td>
-
-      <td>${status}</td>
-
-      <td>${score}</td>
-
-      <td>
-
-        <button
-          onclick="openReport('${p._id}')"
-          class="bg-indigo-600 text-white px-2 py-1 rounded"
-        >
-          View
-        </button>
-
-      </td>
-
-    </tr>
-
-    `
-
-  })
-
-}
-
-
-
-function openReport(id) {
-
-  window.location.href =
-    "candidate_report.html?participant_id=" + id
-
-}
-
-
-
-load()
-
-</script>
-
-
+<body class="font-sans antialiased min-h-screen flex bg-slate-50 dark:bg-m-black text-slate-900 dark:text-white">
+  
+  <aside class="w-20 border-r border-gray-200 dark:border-slate-800 flex flex-col items-center py-10 bg-white dark:bg-m-black sticky top-0 h-screen hidden md:flex">
+    <div class="sidebar-label font-bold tracking-tight text-2xl uppercase mb-auto">Mirai</div>
+    <button onclick="toggleTheme()" class="p-3 mb-4 text-slate-400 hover:text-m-indigo transition-colors">
+      <i id="theme-icon" class="fas fa-moon text-xl"></i>
+    </button>
+    <button onclick="window.location.href='sessions.html'" class="p-3 text-m-indigo hover:scale-110 transition-transform">
+      <i class="fas fa-arrow-left text-2xl"></i>
+    </button>
+  </aside>
+
+  <main class="flex-1 p-8 md:p-16 w-full">
+    <header class="mb-12 border-b border-gray-200 dark:border-slate-800 pb-8">
+      <h1 class="text-6xl font-extrabold tracking-tight uppercase leading-none">Results</h1>
+      <p class="text-sm font-bold uppercase tracking-[0.3em] text-m-indigo mt-4">Candidate Performance Metrics</p>
+    </header>
+    <div id="list" class="w-full"></div>
+  </main>
+
+  <script>
+    const API = "http://localhost:8000";
+
+    function toggleTheme() {
+      const root = document.getElementById('theme-root');
+      const icon = document.getElementById('theme-icon');
+      const isDark = root.classList.toggle('dark');
+      if (icon) icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+      localStorage.setItem('mirai-theme', isDark ? 'dark' : 'light');
+    }
+
+    async function load() {
+      const session_id = new URLSearchParams(window.location.search).get("session_id");
+      try {
+        const res = await fetch(API + "/participants/by-session/" + session_id);
+        const data = await res.json();
+        const div = document.getElementById("list");
+        div.innerHTML = "";
+        
+        data.forEach(p => {
+          const score = p.evaluation && p.evaluation.overall_score ? p.evaluation.overall_score : "0.0";
+          const status = (p.status || "INVITED").toUpperCase();
+
+          div.innerHTML += `
+            <div class="result-card p-10 flex flex-col lg:flex-row justify-between items-center gap-8">
+              <div class="flex-1 text-center lg:text-left">
+                <div class="flex items-center justify-center lg:justify-start gap-3 mb-2">
+                    <h2 class="text-3xl font-bold tracking-tight">${p.name}</h2>
+                    
+                </div>
+                
+              </div>
+              <div class="flex items-center gap-12">
+                <div class="text-right">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-m-indigo mb-1">Overall Score</p>
+                  <p class="score-value text-slate-800 dark:text-white">${score}</p>
+                </div>
+                <button onclick="window.location.href='candidate_report.html?participant_id=${p._id}'" class="btn-report">View Report</button>
+              </div>
+            </div>`;
+        });
+      } catch (e) {
+        console.error("Failed to load results.");
+      }
+    }
+
+    (function() { 
+      const savedTheme = localStorage.getItem('mirai-theme');
+      if (savedTheme === 'dark') {
+        document.getElementById('theme-root').classList.add('dark');
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.className = 'fas fa-sun text-xl';
+      }
+      load(); 
+    })();
+  </script>
 </body>
 </html>

@@ -66,7 +66,7 @@ def send_otp(data: LoginRequest):
     )
 
     print("OTP:", otp)
-    send_otp_email(data.email, otp)
+    #send_otp_email(data.email, otp)
 
     return {"ok": True}
 

@@ -1,209 +1,111 @@
 <!doctype html>
 <html lang="en">
 <head>
-
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-
-<title>Mirai AI Interview Platform</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-bg {
-  background: linear-gradient(
-    -45deg,
-    #667eea,
-    #764ba2,
-    #f093fb,
-    #4facfe
-  );
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-.glass {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-}
-
-</style>
-
-</head>
-
-
-<body class="animated-bg min-h-screen flex items-center justify-center p-4">
-
-
-<div class="w-full max-w-lg glass p-8 shadow-2xl">
-
-
-<!-- TITLE -->
-
-<div class="text-center mb-6">
-
-  <h1 class="text-3xl font-bold">
-    Mirai AI Interview Platform
-  </h1>
-
-  <p class="text-gray-600">
-    Interview conducted by Tachibana Hinata
-  </p>
-
-</div>
-
-
-
-<h2 class="text-xl font-bold mb-4">
-  Candidate Registration Form
-</h2>
-
-
-
-<input id="name"
-placeholder="Full Name"
-class="border p-2 w-full mb-3 rounded"
-/>
-
-
-<input id="email"
-placeholder="Email"
-class="border p-2 w-full mb-3 rounded"
-/>
-
-
-<input id="phone"
-placeholder="Phone"
-class="border p-2 w-full mb-3 rounded"
-/>
-
-
-<input id="college"
-placeholder="College"
-class="border p-2 w-full mb-3 rounded"
-/>
-
-
-<input id="degree"
-placeholder="Degree"
-class="border p-2 w-full mb-3 rounded"
-/>
-
-
-<input id="year"
-placeholder="Year"
-class="border p-2 w-full mb-3 rounded"
-/>
-
-
-
-<button
-onclick="submitForm()"
-class="bg-indigo-600 text-white px-4 py-2 rounded w-full"
->
-Submit
-</button>
-
-
-<p id="msg" class="text-center mt-4 text-green-600"></p>
-
-
-</div>
-
-
-
-<script>
-
-const API = "http://localhost:8000"
-
-
-function getSessionId() {
-
-  const params = new URLSearchParams(
-    window.location.search
-  )
-
-  return params.get("session_id")
-
-}
-
-
-
-async function submitForm() {
-
-  const session_id = getSessionId()
-
-  if (!session_id) {
-
-    alert("Invalid link")
-
-    return
-
-  }
-
-
-  const data = {
-
-    session_id: session_id,
-
-    name: document.getElementById("name").value,
-
-    email: document.getElementById("email").value,
-
-    phone: document.getElementById("phone").value,
-
-    college: document.getElementById("college").value,
-
-    degree: document.getElementById("degree").value,
-
-    year: document.getElementById("year").value
-
-  }
-
-
-  const res = await fetch(
-
-    API + "/form/submit",
-
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify(data)
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Application | Mirai AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { 'm-black': '#0f172a', 'm-indigo': '#6366f1' },
+          fontFamily: { sans: ['Public Sans', 'sans-serif'] }
+        }
+      }
     }
-
-  )
-
-
-  if (res.ok) {
-
-    document.getElementById("msg").innerText =
-      "Form submitted successfully"
-
-  }
-
-  else {
-
-    document.getElementById("msg").innerText =
-      "Error submitting form"
-
-  }
-
-}
-
-</script>
-
-
+  </script>
+  <style>
+    body { background-color: #f8fafc; color: #0f172a; }
+    .simple-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+    .simple-input { border: 1px solid #cbd5e1; padding: 0.75rem; width: 100%; border-radius: 0.5rem; transition: all 0.2s; }
+    .simple-input:focus { outline: none; border-color: #6366f1; ring: 2px; ring-color: #6366f1; }
+    .btn-primary { background: #6366f1; color: white; border-radius: 0.5rem; transition: all 0.2s; font-weight: 700; }
+    .btn-primary:hover { background: #4f46e5; transform: translateY(-1px); }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex items-center justify-center p-6">
+  <div class="max-w-2xl w-full simple-card p-10">
+    <header class="mb-10 border-b border-gray-100 pb-6">
+        <p class="text-[12px] font-bold uppercase tracking-widest text-m-indigo mb-2">Registration Portal</p>
+        <h1 id="role-display" class="text-4xl font-extrabold tracking-tight">Loading...</h1>
+    </header>
+    <form id="applicationForm" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="text-xs font-semibold text-gray-500 mb-1 block">Full Name</label>
+          <input type="text" id="name" required class="simple-input" placeholder="Your Name">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500 mb-1 block">Email Address</label>
+          <input type="email" id="email" required class="simple-input" placeholder="email@address.com">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500 mb-1 block">Mobile Number</label>
+          <input type="text" id="phone" required class="simple-input" placeholder="Phone Number">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500 mb-1 block">College/University</label>
+          <input type="text" id="college" required class="simple-input" placeholder="Institution">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500 mb-1 block">Qualification</label>
+          <input type="text" id="degree" required class="simple-input" placeholder="e.g. B.Tech CS">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500 mb-1 block">Batch Year</label>
+          <input type="text" id="year" required class="simple-input" placeholder="2026">
+        </div>
+      </div>
+      <div class="pt-6">
+        <button type="submit" class="btn-primary w-full py-4 text-xl">Start Interview</button>
+      </div>
+    </form>
+    <p id="msg" class="text-center font-bold mt-8 text-sm"></p>
+  </div>
+  <script>
+    const API = "http://localhost:8000";
+    async function loadRole() {
+      const sid = new URLSearchParams(window.location.search).get("session_id");
+      if (!sid) return;
+      try {
+        const res = await fetch(`${API}/sessions/${sid}`);
+        const data = await res.json();
+        document.getElementById("role-display").innerText = data.title || "Job Role";
+      } catch (e) {
+        document.getElementById("role-display").innerText = "Application Hub";
+      }
+    }
+    document.getElementById("applicationForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("msg");
+      msg.innerText = "SUBMITTING...";
+      const sid = new URLSearchParams(window.location.search).get("session_id");
+      const payload = {
+        session_id: sid,
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        college: document.getElementById("college").value,
+        degree: document.getElementById("degree").value,
+        year: document.getElementById("year").value
+      };
+      try {
+        const res = await fetch(`${API}/form/submit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          msg.className = "text-center font-bold text-green-600 mt-8 text-sm";
+          msg.innerText = "REGISTRATION SUCCESSFUL";
+        } else { throw new Error(); }
+      } catch (err) {
+        msg.className = "text-center font-bold text-red-600 mt-8 text-sm";
+        msg.innerText = "ERROR. PLEASE TRY AGAIN.";
+      }
+    });
+    window.onload = loadRole;
+  </script>
 </body>
 </html>
